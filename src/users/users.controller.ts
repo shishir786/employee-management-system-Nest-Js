@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Request,
+  BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,10 +17,11 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserSignUpDTO } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserSignInDTO } from './dto/user-signin.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/auth.service';
 import { Repository } from 'typeorm';
+import { CurrerntUser } from 'src/utility/common/decorators/current-user.decorator';
+import { AuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -42,15 +45,26 @@ export class UsersController {
     return 'hello';
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+  //for finding all users
+  @Get('all')
+  async findAll() {
+    return await this.usersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
+  //for finding user by id
+  // @Get(':id')
+  // async findOne(@Param('id') id: string ) {
+  //   const numericId = parseInt(id, 10);
+  // if (isNaN(numericId)) {
+  //   throw new BadRequestException('Invalid ID parameter');
+  // }
+  //   return await this.usersService.findOne(+id);
+  // }
+
+  // @Get(':id')
+  // findOne(@Param('id', ParseIntPipe) id: number) {
+  //   return this.usersService.findOne(id);
+  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -62,9 +76,26 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
+  // @Get('profile')
+  // getProfile(@Request() req) {
+  //   return req.user; // user from JWT payload
+  // }
+
+  @UseGuards(AuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
-    return req.user; // user from JWT payload
+  getProfile(@CurrerntUser() currentUser: UserEntity) {
+    return currentUser; 
   }
+
+// Dynamic routes go last
+// for finding user by id
+@Get(':id')
+findOne(@Param('id', ParseIntPipe) id: number) {
+  return this.usersService.findOne(id);
+}
+
+
+
+  
 }

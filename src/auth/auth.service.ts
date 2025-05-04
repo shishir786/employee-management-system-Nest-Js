@@ -4,7 +4,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
-    constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) {}
 
   generateToken(user: Omit<UserEntity, 'password'>): { accessToken: string } {
     const payload = { sub: user.id, email: user.email };

@@ -1,11 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UserSignUpDTO } from './dto/user-signup.dto';
-import { hash,compare } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 import { UserSignInDTO } from './dto/user-signin.dto';
 import { AuthService } from 'src/auth/auth.service';
 
@@ -21,7 +25,6 @@ export class UsersService {
     private usersRepository: Repository<UserEntity>,
     private authService: AuthService, // inject auth service
   ) {}
-  
 
   async signup(
     userSignUp: UserSignUpDTO,
@@ -48,37 +51,40 @@ export class UsersService {
   //   return userWithoutPassword;
   // }
 
-  async signin(userSignIn: UserSignInDTO): Promise<{ user: Omit<UserEntity, 'password'>; accessToken: string }> {
+  async signin(
+    userSignIn: UserSignInDTO,
+  ): Promise<{ user: Omit<UserEntity, 'password'>; accessToken: string }> {
     const existUser = await this.usersRepository
       .createQueryBuilder('users')
       .addSelect('users.password')
       .where('users.email = :email', { email: userSignIn.email })
       .getOne();
-  
+
     if (!existUser) throw new BadRequestException('User not found');
-  
+
     const isMatched = await compare(userSignIn.password, existUser.password);
     if (!isMatched) throw new BadRequestException('Invalid password');
-  
+
     const { password, ...userWithoutPassword } = existUser;
     const token = this.authService.generateToken(userWithoutPassword);
-  
+
     return { user: userWithoutPassword, ...token };
   }
 
-
-
-  
   create(createUserDto: CreateUserDto) {
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return `This action returns all users`;
+  // for finfing all users
+  async findAll() {
+    return await this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  // for finding a user by id
+  async findOne(id: number) {
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -93,5 +99,3 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ email });
   }
 }
-
-
