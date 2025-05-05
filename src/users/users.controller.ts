@@ -22,6 +22,9 @@ import { AuthService } from 'src/auth/auth.service';
 import { Repository } from 'typeorm';
 import { CurrerntUser } from 'src/utility/common/decorators/current-user.decorator';
 import { AuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.decorator';
+import { Role } from 'src/utility/common/user.role.enum';
+import { AuthrizeGuard } from 'src/auth/jwt-authrize.guard';
 
 @Controller('users')
 export class UsersController {
@@ -46,25 +49,12 @@ export class UsersController {
   }
 
   //for finding all users
+  @AuthorizeRoles(Role.ADMIN)
+  @UseGuards(AuthGuard, AuthrizeGuard)
   @Get('all')
   async findAll() {
     return await this.usersService.findAll();
   }
-
-  //for finding user by id
-  // @Get(':id')
-  // async findOne(@Param('id') id: string ) {
-  //   const numericId = parseInt(id, 10);
-  // if (isNaN(numericId)) {
-  //   throw new BadRequestException('Invalid ID parameter');
-  // }
-  //   return await this.usersService.findOne(+id);
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id', ParseIntPipe) id: number) {
-  //   return this.usersService.findOne(id);
-  // }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
@@ -85,17 +75,13 @@ export class UsersController {
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@CurrerntUser() currentUser: UserEntity) {
-    return currentUser; 
+    return currentUser;
   }
 
-// Dynamic routes go last
-// for finding user by id
-@Get(':id')
-findOne(@Param('id', ParseIntPipe) id: number) {
-  return this.usersService.findOne(id);
-}
-
-
-
-  
+  // Dynamic routes go last
+  // for finding user by id
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
+  }
 }

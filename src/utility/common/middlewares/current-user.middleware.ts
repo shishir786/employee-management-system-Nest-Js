@@ -8,7 +8,7 @@ import { UsersService } from 'src/users/users.service';
 declare global {
   namespace Express {
     interface Request {
-      currentUser?: UserEntity; // Adjust the type as per your user object structure
+      currentUser?: UserEntity;
     }
   }
 }
@@ -49,10 +49,7 @@ export class CurrentUserMiddleware implements NestMiddleware {
 
       next();
     } catch (error) {
-      console.error(
-        'JWT verification failed or user lookup error:',
-        error.message,
-      );
+      console.error('JWT verification failed :', error.message);
       req.currentUser = undefined;
       next();
     }
