@@ -49,7 +49,7 @@ export class CurrentUserMiddleware implements NestMiddleware {
 
       next();
     } catch (error) {
-      console.error('JWT verification failed :', error.message);
+      // console.error('JWT verification failed :', error.message);
       req.currentUser = undefined;
       next();
     }

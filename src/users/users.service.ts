@@ -12,6 +12,8 @@ import { UserSignUpDTO } from './dto/user-signup.dto';
 import { hash, compare } from 'bcrypt';
 import { UserSignInDTO } from './dto/user-signin.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { JwtService } from '@nestjs/jwt';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +26,7 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private usersRepository: Repository<UserEntity>,
     private authService: AuthService, // inject auth service
+    private jwtService: JwtService,
   ) {}
 
   async signup(
@@ -91,11 +94,48 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<{ message: string }> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.usersRepository.remove(user);
+    return { message: 'User deleted successfully' };
   }
 
   async fundUserByEmail(email: string) {
     return await this.usersRepository.findOneBy({ email });
+  }
+
+  async changePassword(
+    userId: number,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    const user = await this.usersRepository
+      .createQueryBuilder('users')
+      .addSelect('users.password')
+      .where('users.id = :id', { id: userId })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isPasswordValid = await compare(
+      changePasswordDto.currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    const hashedNewPassword = await hash(changePasswordDto.newPassword, 10);
+    user.password = hashedNewPassword;
+    await this.usersRepository.save(user);
+
+    return { message: 'Password changed successfully' };
   }
 }
