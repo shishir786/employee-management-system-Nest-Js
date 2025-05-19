@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CurrentUserMiddleware } from './utility/common/middlewares/current-user.middleware';
+import { TimesheetsModule } from './timesheets/timesheets.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CurrentUserMiddleware } from './utility/common/middlewares/current-user
     }),
     UsersModule,
     AuthModule,
+    TimesheetsModule,
   ],
   controllers: [],
   providers: [],

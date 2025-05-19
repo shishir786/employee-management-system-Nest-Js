@@ -6,7 +6,9 @@ import {
   PrimaryGeneratedColumn,
   Timestamp,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Timesheet } from '../../timesheets/entities/timesheet.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -25,4 +27,7 @@ export class UserEntity {
 
   @UpdateDateColumn()
   updatedAt: Timestamp;
+
+  @OneToMany(() => Timesheet, timesheet => timesheet.employee)
+  timesheets: Timesheet[];
 }

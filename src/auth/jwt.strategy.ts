@@ -19,7 +19,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Ensure that you're returning user information that should be available in the request object
-    return { id: payload.sub, email: payload.email, role: payload.role };  // Ensure payload has 'role'
+    // Return user information with roles array
+    return { 
+      id: payload.sub, 
+      email: payload.email, 
+      roles: Array.isArray(payload.role) ? payload.role : [payload.role] 
+    };
   }
 }
