@@ -28,6 +28,6 @@ export class UserEntity {
   @UpdateDateColumn()
   updatedAt: Timestamp;
 
-  @OneToMany(() => Timesheet, timesheet => timesheet.employee)
+  @OneToMany(() => Timesheet, (timesheet) => timesheet.employee)
   timesheets: Timesheet[];
 }

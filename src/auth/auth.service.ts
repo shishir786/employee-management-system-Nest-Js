@@ -8,7 +8,7 @@ export class AuthService {
   constructor(private jwtService: JwtService) {}
 
   generateToken(user: Omit<UserEntity, 'password'>): { accessToken: string } {
-    const payload = { sub: user.id, email: user.email, role: user.role };  // Include role in the payload
+    const payload = { sub: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload);
     return { accessToken };
   }

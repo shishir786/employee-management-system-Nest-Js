@@ -9,4 +9,4 @@ export class ChangePasswordDto {
   @IsString()
   @MinLength(3)
   newPassword: string;
-} 
+}

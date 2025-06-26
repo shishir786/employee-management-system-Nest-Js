@@ -1,7 +1,6 @@
 import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
 export class UserSignInDTO {
-        
   @IsNotEmpty({ message: 'Email is required' })
   @IsEmail({}, { message: 'Email is not valid' })
   email: string;

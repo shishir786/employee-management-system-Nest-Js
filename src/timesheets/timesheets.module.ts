@@ -6,10 +6,7 @@ import { Timesheet } from './entities/timesheet.entity';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Timesheet]),
-    UsersModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Timesheet]), UsersModule],
   controllers: [TimesheetsController],
   providers: [TimesheetsService],
   exports: [TimesheetsService],

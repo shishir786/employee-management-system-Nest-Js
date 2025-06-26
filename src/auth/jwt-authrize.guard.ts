@@ -18,7 +18,7 @@ export class AuthrizeGuard implements CanActivate {
     );
 
     const request = context.switchToHttp().getRequest();
-    const currentUser = request.currentUser;  // Changed from user to currentUser
+    const currentUser = request.currentUser; // Changed from user to currentUser
 
     // console.log('Current user:', currentUser);  // Log to debug
 
@@ -27,7 +27,9 @@ export class AuthrizeGuard implements CanActivate {
     }
 
     // Check if the user has any of the required roles
-    const hasAccess = currentUser.role.some(role => allowedRoles?.includes(role));
+    const hasAccess = currentUser.role.some((role) =>
+      allowedRoles?.includes(role),
+    );
 
     if (hasAccess) return true;
 

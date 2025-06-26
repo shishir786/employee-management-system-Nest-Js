@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, Res, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  Res,
+  Request,
+} from '@nestjs/common';
 import { TimesheetsService } from './timesheets.service';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
 import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
@@ -13,36 +25,46 @@ import { Role } from 'src/utility/common/user.role.enum';
 export class TimesheetsController {
   constructor(private readonly timesheetsService: TimesheetsService) {}
 
+  // Create a new timesheet
   @Post('create')
   @Roles(Role.USER, Role.ADMIN)
   create(@Body() createTimesheetDto: CreateTimesheetDto, @Request() req) {
     return this.timesheetsService.create(createTimesheetDto, req.user.id);
   }
 
+  // Get all timesheets
   @Get('all')
   @Roles(Role.ADMIN, Role.MANAGER)
   findAll() {
     return this.timesheetsService.findAll();
   }
 
+  // Get a single timesheet by ID
   @Get(':id')
   @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
   findOne(@Param('id') id: string, @Request() req) {
     return this.timesheetsService.findOne(+id, req.user);
   }
 
+  // Update a timesheet by ID
   @Patch(':id')
   @Roles(Role.ADMIN, Role.MANAGER)
-  update(@Param('id') id: string, @Body() updateTimesheetDto: UpdateTimesheetDto, @Request() req) {
+  update(
+    @Param('id') id: string,
+    @Body() updateTimesheetDto: UpdateTimesheetDto,
+    @Request() req,
+  ) {
     return this.timesheetsService.update(+id, updateTimesheetDto, req.user);
   }
 
+  // Delete a timesheet by ID
   @Delete(':id')
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string, @Request() req) {
     return this.timesheetsService.remove(+id, req.user);
   }
 
+  // Export timesheets to Excel
   @Get('export/excel')
   @Roles(Role.ADMIN, Role.MANAGER)
   async exportToExcel(
@@ -56,7 +78,8 @@ export class TimesheetsController {
     const buffer = await this.timesheetsService.exportToExcel(start, end);
 
     res.set({
-      'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': 'attachment; filename=timesheets.xlsx',
       'Content-Length': buffer.length,
     });

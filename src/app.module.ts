@@ -13,7 +13,6 @@ import { TimesheetsModule } from './timesheets/timesheets.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

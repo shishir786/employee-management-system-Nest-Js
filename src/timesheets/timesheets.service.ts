@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Timesheet } from './entities/timesheet.entity';
@@ -15,7 +19,10 @@ export class TimesheetsService {
     private usersService: UsersService,
   ) {}
 
-  async create(createTimesheetDto: CreateTimesheetDto, userId: number): Promise<Timesheet> {
+  async create(
+    createTimesheetDto: CreateTimesheetDto,
+    userId: number,
+  ): Promise<Timesheet> {
     const employee = await this.usersService.findOne(userId);
     if (!employee) {
       throw new NotFoundException('Employee not found');
@@ -31,7 +38,10 @@ export class TimesheetsService {
       ...createTimesheetDto,
       date,
       employee,
-      totalHours: this.calculateTotalHours(createTimesheetDto.startTime, createTimesheetDto.endTime),
+      totalHours: this.calculateTotalHours(
+        createTimesheetDto.startTime,
+        createTimesheetDto.endTime,
+      ),
     });
 
     return this.timesheetRepository.save(timesheet);
@@ -54,7 +64,10 @@ export class TimesheetsService {
     }
 
     // Check if user has permission to view this timesheet
-    if (currentUser.roles.includes('admin') || currentUser.roles.includes('manager')) {
+    if (
+      currentUser.roles.includes('admin') ||
+      currentUser.roles.includes('manager')
+    ) {
       return timesheet;
     }
 
@@ -66,7 +79,11 @@ export class TimesheetsService {
     return timesheet;
   }
 
-  async update(id: number, updateTimesheetDto: UpdateTimesheetDto, currentUser: any): Promise<Timesheet> {
+  async update(
+    id: number,
+    updateTimesheetDto: UpdateTimesheetDto,
+    currentUser: any,
+  ): Promise<Timesheet> {
     const timesheet = await this.findOne(id, currentUser);
 
     if (updateTimesheetDto.startTime && updateTimesheetDto.endTime) {
@@ -114,21 +131,24 @@ export class TimesheetsService {
 
     const timesheets = await queryBuilder.getMany();
 
-    const data = timesheets.map(timesheet => ({
+    const data = timesheets.map((timesheet) => ({
       'Employee Name': timesheet.employee.name,
-      'Date': new Date(timesheet.date).toISOString().split('T')[0],
+      Date: new Date(timesheet.date).toISOString().split('T')[0],
       'Start Time': timesheet.startTime,
       'End Time': timesheet.endTime,
       'Total Hours': timesheet.totalHours,
-      'Description': timesheet.description,
-      'Status': timesheet.status,
+      Description: timesheet.description,
+      Status: timesheet.status,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Timesheets');
 
-    const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    const excelBuffer = XLSX.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+    });
     return excelBuffer;
   }
 }

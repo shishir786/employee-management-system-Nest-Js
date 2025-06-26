@@ -98,8 +98,9 @@ export class UsersController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     //console.log('Received request body:', changePasswordDto); // Add logging to debug
-    return await this.usersService.changePassword(currentUser.id, changePasswordDto);
+    return await this.usersService.changePassword(
+      currentUser.id,
+      changePasswordDto,
+    );
   }
 }
-
-

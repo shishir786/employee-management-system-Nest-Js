@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
 
 @Entity()
@@ -6,8 +13,8 @@ export class Timesheet {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => UserEntity, user => user.timesheets)
-  employee: UserEntity  ;
+  @ManyToOne(() => UserEntity, (user) => user.timesheets)
+  employee: UserEntity;
 
   @Column({ type: 'date' })
   date: Date;
