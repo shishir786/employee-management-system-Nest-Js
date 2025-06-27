@@ -1,12 +1,11 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CurrentUserMiddleware } from './utility/common/middlewares/current-user.middleware';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
+import { LeaveModule } from './leave/leave.module';
 import { TimesheetsModule } from './timesheets/timesheets.module';
+import { UsersModule } from './users/users.module';
+import { CurrentUserMiddleware } from './utility/common/middlewares/current-user.middleware';
 
 @Module({
   imports: [
@@ -31,6 +30,7 @@ import { TimesheetsModule } from './timesheets/timesheets.module';
     UsersModule,
     AuthModule,
     TimesheetsModule,
+    LeaveModule,
   ],
   controllers: [],
   providers: [],

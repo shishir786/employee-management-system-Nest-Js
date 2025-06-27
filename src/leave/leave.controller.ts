@@ -1,21 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { LeaveService } from './leave.service';
-import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
-import { ApproveLeaveRequestDto } from './dto/approve-leave-request.dto';
-import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
 import { AuthGuard } from 'src/auth/jwt-auth.guard';
-import { UserEntity } from '../users/entities/user.entity';
 import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.decorator';
+import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
 import { Role } from 'src/utility/common/user.role.enum';
+import { UserEntity } from '../users/entities/user.entity';
+import { ApproveLeaveRequestDto } from './dto/approve-leave-request.dto';
+import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
+import { LeaveService } from './leave.service';
 
 @Controller('leave')
 export class LeaveController {
@@ -38,14 +39,18 @@ export class LeaveController {
   findAll(@CurrentUser() currentUser: UserEntity) {
     return this.leaveService.findAllForUser(currentUser.id);
   }
-
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
   @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
     @CurrentUser() currentUser: UserEntity,
   ) {
-    return this.leaveService.findOneForUser(+id, currentUser);
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      throw new BadRequestException('Invalid leave request ID');
+    }
+    return this.leaveService.findOneForUser(numericId, currentUser);
   }
 
   @AuthorizeRoles(Role.ADMIN, Role.MANAGER)

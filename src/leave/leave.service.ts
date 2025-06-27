@@ -1,15 +1,14 @@
 import {
-  Injectable,
-  NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LeaveRequest } from './entities/leave-request.entity';
-import { LeaveBalance } from './entities/leave-balance.entity';
-import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
 import { ApproveLeaveRequestDto } from './dto/approve-leave-request.dto';
+import { CreateLeaveRequestDto } from './dto/create-leave-request.dto';
+import { LeaveRequest } from './entities/leave-request.entity';
 import { LeaveStatus } from './enums/leave-status.enum';
 
 @Injectable()
@@ -17,8 +16,6 @@ export class LeaveService {
   constructor(
     @InjectRepository(LeaveRequest)
     private leaveRequestRepository: Repository<LeaveRequest>,
-    @InjectRepository(LeaveBalance)
-    private leaveBalanceRepository: Repository<LeaveBalance>,
   ) {}
 
   async create(
@@ -62,24 +59,15 @@ export class LeaveService {
     return this.leaveRequestRepository.save(leaveRequest);
   }
 
-  async remove(id: number): Promise<{ message: string }> {
-    const leaveRequest = await this.leaveRequestRepository.findOneBy({ id });
-    if (!leaveRequest) {
-      throw new NotFoundException('Leave request not found');
-    }
-    await this.leaveRequestRepository.remove(leaveRequest);
-    return { message: 'Leave request deleted successfully' };
+  async remove(id: number): Promise<void> {
+    await this.leaveRequestRepository.delete(id);
   }
 
   async createForUser(
     userId: number,
-    createLeaveRequestDto: CreateLeaveRequestDto,
+    dto: CreateLeaveRequestDto,
   ): Promise<LeaveRequest> {
-    const leaveRequest = this.leaveRequestRepository.create({
-      ...createLeaveRequestDto,
-      userId,
-      status: LeaveStatus.PENDING,
-    });
+    const leaveRequest = this.leaveRequestRepository.create({ ...dto, userId });
     return this.leaveRequestRepository.save(leaveRequest);
   }
 

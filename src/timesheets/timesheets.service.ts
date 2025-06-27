@@ -1,15 +1,15 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Timesheet } from './entities/timesheet.entity';
+import * as XLSX from 'xlsx';
+import { UsersService } from '../users/users.service';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
 import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
-import { UsersService } from '../users/users.service';
-import * as XLSX from 'xlsx';
+import { Timesheet } from './entities/timesheet.entity';
 
 @Injectable()
 export class TimesheetsService {
@@ -38,6 +38,7 @@ export class TimesheetsService {
       ...createTimesheetDto,
       date,
       employee,
+      employeeName: employee.name,
       totalHours: this.calculateTotalHours(
         createTimesheetDto.startTime,
         createTimesheetDto.endTime,
@@ -150,5 +151,12 @@ export class TimesheetsService {
       bookType: 'xlsx',
     });
     return excelBuffer;
+  }
+
+  async findMine(userId: number): Promise<Timesheet[]> {
+    return this.timesheetRepository.find({
+      where: { employee: { id: userId } },
+      relations: ['employee'],
+    });
   }
 }

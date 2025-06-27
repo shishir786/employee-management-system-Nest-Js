@@ -1,9 +1,9 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
-  ManyToOne,
   CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserEntity } from '../../users/entities/user.entity';
@@ -33,6 +33,9 @@ export class Timesheet {
 
   @Column({ type: 'varchar', length: 20, default: 'pending' })
   status: 'pending' | 'approved' | 'rejected';
+
+  @Column({ type: 'varchar', length: 255 })
+  employeeName: string;
 
   @CreateDateColumn()
   createdAt: Date;

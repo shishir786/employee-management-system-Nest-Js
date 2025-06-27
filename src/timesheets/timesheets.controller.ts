@@ -1,72 +1,75 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   Res,
-  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { TimesheetsService } from './timesheets.service';
+import { Response } from 'express';
+import { AuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthrizeGuard } from 'src/auth/jwt-authrize.guard';
+import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.decorator';
+import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
+import { Role } from 'src/utility/common/user.role.enum';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
 import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
-import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
-import { AuthGuard } from 'src/auth/jwt-auth.guard';
-import { Response } from 'express';
-import { Role } from 'src/utility/common/user.role.enum';
+import { TimesheetsService } from './timesheets.service';
 
 @Controller('timesheets')
-@UseGuards(AuthGuard, RolesGuard)
+@UseGuards(AuthGuard, AuthrizeGuard)
 export class TimesheetsController {
   constructor(private readonly timesheetsService: TimesheetsService) {}
 
   // Create a new timesheet
   @Post('create')
-  @Roles(Role.USER, Role.ADMIN)
-  create(@Body() createTimesheetDto: CreateTimesheetDto, @Request() req) {
-    return this.timesheetsService.create(createTimesheetDto, req.user.id);
+  @AuthorizeRoles(Role.USER, Role.ADMIN)
+  create(
+    @CurrentUser() currentUser,
+    @Body() createTimesheetDto: CreateTimesheetDto,
+  ) {
+    return this.timesheetsService.create(createTimesheetDto, currentUser.id);
   }
 
   // Get all timesheets
   @Get('all')
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
   findAll() {
     return this.timesheetsService.findAll();
   }
 
   // Get a single timesheet by ID
   @Get(':id')
-  @Roles(Role.ADMIN, Role.MANAGER, Role.USER)
-  findOne(@Param('id') id: string, @Request() req) {
-    return this.timesheetsService.findOne(+id, req.user);
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER, Role.USER)
+  findOne(@Param('id') id: string, @CurrentUser() currentUser) {
+    return this.timesheetsService.findOne(+id, currentUser);
   }
 
   // Update a timesheet by ID
   @Patch(':id')
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
   update(
     @Param('id') id: string,
     @Body() updateTimesheetDto: UpdateTimesheetDto,
-    @Request() req,
+    @CurrentUser() currentUser,
   ) {
-    return this.timesheetsService.update(+id, updateTimesheetDto, req.user);
+    return this.timesheetsService.update(+id, updateTimesheetDto, currentUser);
   }
 
   // Delete a timesheet by ID
   @Delete(':id')
-  @Roles(Role.ADMIN)
-  remove(@Param('id') id: string, @Request() req) {
-    return this.timesheetsService.remove(+id, req.user);
+  @AuthorizeRoles(Role.ADMIN)
+  remove(@Param('id') id: string, @CurrentUser() currentUser) {
+    return this.timesheetsService.remove(+id, currentUser);
   }
 
   // Export timesheets to Excel
   @Get('export/excel')
-  @Roles(Role.ADMIN, Role.MANAGER)
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
   async exportToExcel(
     @Res() res: Response,
     @Query('startDate') startDate?: string,
@@ -85,5 +88,12 @@ export class TimesheetsController {
     });
 
     res.send(buffer);
+  }
+
+  // Get all timesheets for the current user
+  @Get()
+  @AuthorizeRoles(Role.USER, Role.ADMIN, Role.MANAGER)
+  findMine(@CurrentUser() currentUser) {
+    return this.timesheetsService.findMine(currentUser.id);
   }
 }
