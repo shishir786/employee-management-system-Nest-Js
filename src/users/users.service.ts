@@ -3,17 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { compare, hash } from 'bcrypt';
+import { AuthService } from 'src/auth/auth.service';
+import { Repository } from 'typeorm';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { UserEntity } from './entities/user.entity';
-import { UserSignUpDTO } from './dto/user-signup.dto';
-import { hash, compare } from 'bcrypt';
 import { UserSignInDTO } from './dto/user-signin.dto';
-import { AuthService } from 'src/auth/auth.service';
-import { JwtService } from '@nestjs/jwt';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { UserSignUpDTO } from './dto/user-signup.dto';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -90,8 +90,21 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<Omit<UserEntity, 'password'>> {
+    // console.log('UpdateUserDto received:', updateUserDto);
+    const user = await this.usersRepository.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    // console.log('User before update:', user);
+    Object.assign(user, updateUserDto);
+    const updatedUser = await this.usersRepository.save(user);
+    // console.log('User after update:', updatedUser);
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
   }
 
   async remove(id: number): Promise<{ message: string }> {

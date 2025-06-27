@@ -1,32 +1,28 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
-  Request,
-  BadRequestException,
-  ParseIntPipe,
   ForbiddenException,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { AuthGuard } from 'src/auth/jwt-auth.guard';
+import { AuthrizeGuard } from 'src/auth/jwt-authrize.guard';
+import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.decorator';
+import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
+import { Role } from 'src/utility/common/user.role.enum';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserSignInDTO } from './dto/user-signin.dto';
 import { UserSignUpDTO } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
-import { UserSignInDTO } from './dto/user-signin.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { AuthService } from 'src/auth/auth.service';
-import { Repository } from 'typeorm';
-import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
-import { AuthGuard } from 'src/auth/jwt-auth.guard';
-import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.decorator';
-import { Role } from 'src/utility/common/user.role.enum';
-import { AuthrizeGuard } from 'src/auth/jwt-authrize.guard';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
@@ -58,8 +54,14 @@ export class UsersController {
     return await this.usersService.findAll();
   }
 
+  // update user
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req,
+  ) {
+    // console.log('Raw body:', req.body);
     return this.usersService.update(+id, updateUserDto);
   }
 
