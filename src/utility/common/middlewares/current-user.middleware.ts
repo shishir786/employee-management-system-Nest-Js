@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { isArray } from 'class-validator';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { JwtPayload, verify } from 'jsonwebtoken';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -45,6 +45,8 @@ export class CurrentUserMiddleware implements NestMiddleware {
 
       const userId = Number(decoded.sub);
       const currentUser = await this.usersService.findOne(userId);
+      // console.log('Decoded JWT:', decoded);
+      // console.log('Current user from DB:', currentUser);
       req.currentUser = currentUser;
 
       next();

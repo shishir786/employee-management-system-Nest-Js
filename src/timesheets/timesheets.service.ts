@@ -66,8 +66,8 @@ export class TimesheetsService {
 
     // Check if user has permission to view this timesheet
     if (
-      currentUser.roles.includes('admin') ||
-      currentUser.roles.includes('manager')
+      currentUser.role?.includes('admin') ||
+      currentUser.role?.includes('manager')
     ) {
       return timesheet;
     }
@@ -106,6 +106,17 @@ export class TimesheetsService {
     return this.timesheetRepository.save(timesheet);
   }
 
+  async updateStatus(
+    id: number,
+    status: 'pending' | 'completed',
+    currentUser: any,
+  ): Promise<Timesheet> {
+    const timesheet = await this.findOne(id, currentUser);
+
+    timesheet.status = status;
+    return this.timesheetRepository.save(timesheet);
+  }
+
   async remove(id: number, currentUser: any): Promise<void> {
     const timesheet = await this.findOne(id, currentUser);
     await this.timesheetRepository.remove(timesheet);
@@ -133,6 +144,7 @@ export class TimesheetsService {
     const timesheets = await queryBuilder.getMany();
 
     const data = timesheets.map((timesheet) => ({
+      'Employee ID': timesheet.employee.id,
       'Employee Name': timesheet.employee.name,
       Date: new Date(timesheet.date).toISOString().split('T')[0],
       'Start Time': timesheet.startTime,

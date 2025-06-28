@@ -7,6 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare, hash } from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
+import { Role } from 'src/utility/common/user.role.enum';
 import { Repository } from 'typeorm';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -37,7 +38,16 @@ export class UsersService {
 
     userSignUp.password = await hash(userSignUp.password, 10);
 
-    let user = this.usersRepository.create(userSignUp);
+    // Convert string[] to Role[] if role is provided
+    let role: Role[] = [Role.USER];
+    if (userSignUp.role && userSignUp.role.length > 0) {
+      role = userSignUp.role.map((r) => r.toLowerCase() as Role);
+    }
+
+    let user = this.usersRepository.create({
+      ...userSignUp,
+      role,
+    });
     user = await this.usersRepository.save(user);
 
     const { password, ...userWithoutPassword } = user;
@@ -150,5 +160,19 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return { message: 'Password changed successfully' };
+  }
+
+  async updateUserRole(
+    id: number,
+    updateUserRoleDto: {
+      role: import('../utility/common/user.role.enum').Role[];
+    },
+  ) {
+    const user = await this.findOne(id);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.role = updateUserRoleDto.role;
+    return this.usersRepository.save(user);
   }
 }

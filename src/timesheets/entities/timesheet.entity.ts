@@ -32,7 +32,7 @@ export class Timesheet {
   description: string;
 
   @Column({ type: 'varchar', length: 20, default: 'pending' })
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'completed';
 
   @Column({ type: 'varchar', length: 255 })
   employeeName: string;

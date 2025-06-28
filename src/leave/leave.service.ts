@@ -18,17 +18,6 @@ export class LeaveService {
     private leaveRequestRepository: Repository<LeaveRequest>,
   ) {}
 
-  async create(
-    createLeaveRequestDto: CreateLeaveRequestDto,
-  ): Promise<LeaveRequest> {
-    // Optionally: Check leave balance here
-    const leaveRequest = this.leaveRequestRepository.create({
-      ...createLeaveRequestDto,
-      status: LeaveStatus.PENDING,
-    });
-    return this.leaveRequestRepository.save(leaveRequest);
-  }
-
   async findAll(): Promise<LeaveRequest[]> {
     return this.leaveRequestRepository.find();
   }
@@ -65,9 +54,15 @@ export class LeaveService {
 
   async createForUser(
     userId: number,
+    userName: string,
     dto: CreateLeaveRequestDto,
   ): Promise<LeaveRequest> {
-    const leaveRequest = this.leaveRequestRepository.create({ ...dto, userId });
+    const leaveRequest = this.leaveRequestRepository.create({
+      ...dto,
+      userId,
+      name: userName,
+      status: LeaveStatus.PENDING,
+    });
     return this.leaveRequestRepository.save(leaveRequest);
   }
 

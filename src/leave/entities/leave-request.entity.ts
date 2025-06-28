@@ -1,11 +1,11 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { LeaveType } from '../enums/leave-type.enum';
 import { LeaveStatus } from '../enums/leave-status.enum';
+import { LeaveType } from '../enums/leave-type.enum';
 
 @Entity()
 export class LeaveRequest {
@@ -15,10 +15,13 @@ export class LeaveRequest {
   @Column()
   userId: number;
 
+  @Column()
+  name: string;
+
   @Column({ type: 'enum', enum: LeaveType })
   type: LeaveType;
 
-  @Column({ type: 'enum', enum: LeaveStatus })
+  @Column({ type: 'enum', enum: LeaveStatus, default: LeaveStatus.PENDING })
   status: LeaveStatus;
 
   @Column({ type: 'date' })

@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { LeaveModule } from './leave/leave.module';
+import { NoticeModule } from './notice/notice.module';
 import { TimesheetsModule } from './timesheets/timesheets.module';
 import { UsersModule } from './users/users.module';
 import { CurrentUserMiddleware } from './utility/common/middlewares/current-user.middleware';
@@ -31,6 +32,7 @@ import { CurrentUserMiddleware } from './utility/common/middlewares/current-user
     AuthModule,
     TimesheetsModule,
     LeaveModule,
+    NoticeModule,
   ],
   controllers: [],
   providers: [],

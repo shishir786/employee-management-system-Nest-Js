@@ -47,7 +47,7 @@ export class UsersController {
   }
 
   //for finding all users
-  @AuthorizeRoles(Role.ADMIN)
+  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
   @UseGuards(AuthGuard, AuthrizeGuard)
   @Get('all')
   async findAll() {
@@ -63,6 +63,18 @@ export class UsersController {
   ) {
     // console.log('Raw body:', req.body);
     return this.usersService.update(+id, updateUserDto);
+  }
+
+  // update user role (admin only)
+  @Patch(':id/role')
+  @AuthorizeRoles(Role.ADMIN)
+  @UseGuards(AuthGuard, AuthrizeGuard)
+  async updateUserRole(
+    @Param('id') id: string,
+    @Body()
+    updateUserRoleDto: import('./dto/update-user-role.dto').UpdateUserRoleDto,
+  ) {
+    return await this.usersService.updateUserRole(+id, updateUserRoleDto);
   }
 
   @Delete(':id')

@@ -17,7 +17,10 @@ import { AuthorizeRoles } from 'src/utility/common/decorators/authorize-roles.de
 import { CurrentUser } from 'src/utility/common/decorators/current-user.decorator';
 import { Role } from 'src/utility/common/user.role.enum';
 import { CreateTimesheetDto } from './dto/create-timesheet.dto';
-import { UpdateTimesheetDto } from './dto/update-timesheet.dto';
+import {
+  UpdateTimesheetDto,
+  UpdateTimesheetStatusDto,
+} from './dto/update-timesheet.dto';
 import { TimesheetsService } from './timesheets.service';
 
 @Controller('timesheets')
@@ -27,7 +30,7 @@ export class TimesheetsController {
 
   // Create a new timesheet
   @Post('create')
-  @AuthorizeRoles(Role.USER, Role.ADMIN)
+  @AuthorizeRoles(Role.USER, Role.ADMIN, Role.MANAGER)
   create(
     @CurrentUser() currentUser,
     @Body() createTimesheetDto: CreateTimesheetDto,
@@ -51,13 +54,28 @@ export class TimesheetsController {
 
   // Update a timesheet by ID
   @Patch(':id')
-  @AuthorizeRoles(Role.ADMIN, Role.MANAGER)
+  @AuthorizeRoles(Role.USER, Role.ADMIN, Role.MANAGER)
   update(
     @Param('id') id: string,
     @Body() updateTimesheetDto: UpdateTimesheetDto,
     @CurrentUser() currentUser,
   ) {
     return this.timesheetsService.update(+id, updateTimesheetDto, currentUser);
+  }
+
+  // Update timesheet status
+  @Patch(':id/status')
+  @AuthorizeRoles(Role.USER, Role.ADMIN, Role.MANAGER)
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateTimesheetStatusDto,
+    @CurrentUser() currentUser,
+  ) {
+    return this.timesheetsService.updateStatus(
+      +id,
+      updateStatusDto.status,
+      currentUser,
+    );
   }
 
   // Delete a timesheet by ID

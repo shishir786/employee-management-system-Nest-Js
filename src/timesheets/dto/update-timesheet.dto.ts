@@ -1,13 +1,18 @@
 import { PartialType } from '@nestjs/mapped-types';
+import { IsEnum, IsNumber, IsOptional } from 'class-validator';
 import { CreateTimesheetDto } from './create-timesheet.dto';
-import { IsEnum, IsOptional, IsNumber } from 'class-validator';
 
 export class UpdateTimesheetDto extends PartialType(CreateTimesheetDto) {
   @IsOptional()
-  @IsEnum(['pending', 'approved', 'rejected'])
-  status?: 'pending' | 'approved' | 'rejected';
+  @IsEnum(['pending', 'completed'])
+  status?: 'pending' | 'completed';
 
   @IsOptional()
   @IsNumber()
   totalHours?: number;
+}
+
+export class UpdateTimesheetStatusDto {
+  @IsEnum(['pending', 'completed'])
+  status: 'pending' | 'completed';
 }

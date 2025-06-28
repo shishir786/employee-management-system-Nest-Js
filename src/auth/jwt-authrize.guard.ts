@@ -26,9 +26,14 @@ export class AuthrizeGuard implements CanActivate {
       throw new UnauthorizedException('User or role not found');
     }
 
+    // If no roles are specified, allow any authenticated user
+    if (!allowedRoles) {
+      return true;
+    }
+
     // Check if the user has any of the required roles
     const hasAccess = currentUser.role.some((role) =>
-      allowedRoles?.includes(role),
+      allowedRoles.includes(role),
     );
 
     if (hasAccess) return true;
