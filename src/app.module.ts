@@ -11,12 +11,12 @@ import { ProjectsModule } from './projects/projects.module';
 import { TimesheetsModule } from './timesheets/timesheets.module';
 import { UsersModule } from './users/users.module';
 import { CurrentUserMiddleware } from './utility/common/middlewares/current-user.middleware';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: process.env.NODE_ENV === 'production' ? undefined : '.env',
+      // if NODE_ENV=production, don't load .env file; otherwise load it
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -50,4 +50,3 @@ export class AppModule {
       .forRoutes({ path: '*', method: RequestMethod.ALL });
   }
 }
-
