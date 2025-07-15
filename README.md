@@ -8,7 +8,6 @@ A full-featured employee management backend built with [NestJS](https://nestjs.c
 
 - **User Management:** Register, update, and manage users with roles.
 - **Authentication & Authorization:** Secure JWT-based login, role-based access control.
-- **Attendance Tracking:** Record daily check-in/check-out for employees.
 - **Leave Management:** Request, approve, and track employee leaves (with types and statuses).
 - **Notice Board:** Post and manage company-wide notices.
 - **Project Management:** Create projects, assign employees, track project status and duration.
