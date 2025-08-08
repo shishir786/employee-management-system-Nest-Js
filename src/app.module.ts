@@ -19,19 +19,18 @@ import { CurrentUserMiddleware } from './utility/common/middlewares/current-user
       // if NODE_ENV=production, don't load .env file; otherwise load it
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: +configService.get<number>('DB_PORT', 5432),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
-        entities: ['dist/**/*.entity{.ts,.js}'],
-        synchronize: true,
-      }),
-      inject: [ConfigService],
-    }),
+  imports: [ConfigModule],
+  useFactory: async (configService: ConfigService) => ({
+    type: 'postgres',
+    url: configService.get<string>('DATABASE_URL'), // ✅ use full URL
+    autoLoadEntities: true,
+    synchronize: true, // ❗ Turn off in production
+    ssl: {
+      rejectUnauthorized: false, // ✅ required for Neon
+    },
+  }),
+  inject: [ConfigService],
+}),
     UsersModule,
     AuthModule,
     TimesheetsModule,
